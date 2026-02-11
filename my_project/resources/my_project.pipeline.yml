@@ -3,8 +3,8 @@ resources:
   pipelines:
     my_project_pipeline:
       name: my_project_pipeline
-      catalog: main
-      schema: my_project_${bundle.target}
+      catalog: ${var.catalog}
+      schema: ${var.schema_prefix}_${bundle.target}
       libraries:
         - notebook:
             path: ../src/dlt_pipeline.ipynb
