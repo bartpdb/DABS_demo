@@ -1,4 +1,4 @@
-# The main job for my_project.
+# The main job for my_project — runs on serverless compute.
 resources:
   jobs:
     my_project_job:
@@ -15,8 +15,8 @@ resources:
       #    - your_email@example.com
 
       tasks:
+        # Notebook task — serverless by default when no cluster is specified
         - task_key: notebook_task
-          job_cluster_key: job_cluster
           notebook_task:
             notebook_path: ../src/notebook.ipynb
 
@@ -26,25 +26,21 @@ resources:
           pipeline_task:
             pipeline_id: ${resources.pipelines.my_project_pipeline.id}
 
+        # Python wheel task — requires environment_key for serverless
         - task_key: main_task
           depends_on:
             - task_key: refresh_pipeline
-          job_cluster_key: job_cluster
           python_wheel_task:
             package_name: my_project
             entry_point: main
+          environment_key: default
           libraries:
             # By default we just include the .whl file generated for the my_project package.
             # See https://docs.databricks.com/dev-tools/bundles/library-dependencies.html
             # for more information on how to add other libraries.
             - whl: ../dist/*.whl
 
-      job_clusters:
-        - job_cluster_key: job_cluster
-          new_cluster:
-            spark_version: 15.4.x-scala2.12
-            node_type_id: ${var.node_type_id}
-            data_security_mode: SINGLE_USER
-            autoscale:
-                min_workers: 1
-                max_workers: ${var.max_workers}
+      # Serverless environment for Python wheel tasks
+      environments:
+        - environment_key: default
+          spec: null

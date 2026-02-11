@@ -15,12 +15,6 @@ variables:
   schema_prefix:
     description: Schema prefix for pipeline output
     default: my_project
-  node_type_id:
-    description: Instance type for job clusters
-    default: i3.xlarge
-  max_workers:
-    description: Maximum number of workers for autoscaling
-    default: 4
 
 targets:
   dev:
@@ -34,7 +28,6 @@ targets:
       host: https://e2-demo-field-eng.cloud.databricks.com
     variables:
       catalog: main
-      max_workers: 2
 
   prod:
     mode: production
@@ -44,7 +37,6 @@ targets:
       root_path: /Workspace/Users/bart.prikker@databricks.com/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: main
-      max_workers: 4
     permissions:
       - user_name: bart.prikker@databricks.com
         level: CAN_MANAGE

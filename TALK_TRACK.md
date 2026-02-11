@@ -16,29 +16,25 @@ Use this as a script to practice. Italics are stage directions (what you do on s
 
 *Scroll down to the `variables` block.*
 
-"Next we have variables. These are parameters that can change between environments. Catalog name, schema prefix, instance type, how many workers we want. Each one has a default, but we can override them per target — I'll show you that in a second."
+"Next we have variables. These are parameters that can change between environments — catalog name, schema prefix. Each one has a default, but we can override them per target — I'll show you that in a second."
 
 *Scroll down to `targets`.*
 
 "Targets are your deployment environments. We have `dev` and `prod`. Dev mode is special — Databricks automatically prefixes all your resources with your username and pauses any schedules. So you can deploy without stepping on anyone else's toes. Prod mode enforces best practices — it'll validate you're not deploying from a personal branch, it sets permissions, the whole thing."
 
-"Notice dev overrides `max_workers` to 2 — we don't need a big cluster for development. Prod gets 4."
-
 *Open `resources/my_project.job.yml`.*
 
 "Here's our job definition. This is a workflow with three tasks chained together. First a notebook task, then a Lakeflow Declarative Pipeline refresh, then a Python wheel task. These run in sequence — each one depends on the previous."
+
+"Notice there's no cluster configuration here — no instance types, no worker counts. This entire job runs on serverless compute. Databricks manages the infrastructure for you. For the notebook task, you just omit the cluster key and it defaults to serverless. For the Python wheel task, you reference an `environment_key` instead."
 
 *Point to `${resources.pipelines.my_project_pipeline.id}`.*
 
 "See this reference here? The job doesn't hardcode a pipeline ID. It references the pipeline we define in another file. When you deploy, Databricks resolves these automatically. Everything stays in sync."
 
-*Point to `${var.node_type_id}` and `${var.max_workers}`.*
-
-"And here's where our variables show up. The cluster config uses `var.node_type_id` and `var.max_workers` — so dev and prod get different compute, from the same definition."
-
 *Open `resources/my_project.pipeline.yml`.*
 
-"Same idea here — the Lakeflow Declarative Pipeline uses `var.catalog` and builds the schema name dynamically from the target. So dev writes to `my_project_dev`, prod writes to `my_project_prod`. No manual schema management."
+"Same idea here — the Lakeflow Declarative Pipeline uses `var.catalog` and builds the schema name dynamically from the target. So dev writes to `my_project_dev`, prod writes to `my_project_prod`. No manual schema management. And notice `serverless: true` — the pipeline also runs without any cluster config."
 
 *Open `src/dlt_pipeline.ipynb`.*
 
@@ -103,7 +99,7 @@ databricks bundle run my_project_job
 
 *Wait for completion (or narrate while it runs).*
 
-"This is nice because you're testing the full production workflow — not just a notebook in isolation. The job, the pipeline, the dependencies, the cluster config — it's all the real thing."
+"This is nice because you're testing the full production workflow — not just a notebook in isolation. The job, the pipeline, the dependencies — it's all the real thing. And because it's serverless, there's no waiting for clusters to spin up."
 
 ---
 
@@ -143,10 +139,10 @@ databricks bundle run my_project_job
 
 *Run:*
 ```
-databricks bundle deploy -t dev --var="max_workers=1"
+databricks bundle deploy -t dev --var="catalog=dev_sandbox"
 ```
 
-"I just deployed with a single worker. Maybe I'm testing something small and don't want to burn compute. I didn't touch any config files — it's a one-time override."
+"I just deployed pointing the pipeline at a completely different catalog. Maybe I want to test against a sandbox catalog without touching the real data. I didn't edit any config files — it's a one-time override from the command line."
 
 "This is really useful in CI too. You could pass different variables per branch, per environment, whatever you need. One codebase, infinite configurations."
 
@@ -199,7 +195,7 @@ databricks bundle destroy -t dev
 
 "So to recap — Databricks Asset Bundles give you:"
 
-"One: everything as code. Jobs, pipelines, clusters, permissions — all in version-controlled YAML alongside your source code."
+"One: everything as code. Jobs, pipelines, permissions — all in version-controlled YAML alongside your source code."
 
 "Two: fast iteration. Validate locally, deploy in seconds, run immediately. No UI clicking."
 
@@ -228,13 +224,14 @@ databricks bundle destroy -t dev
 | 9 | Wrap up | ~1 min |
 | | **Total** | **~22 min** |
 
-Buffer for cluster spin-up time, Q&A, and navigating between screens: plan for **30 min**.
+Buffer for serverless startup, Q&A, and navigating between screens: plan for **25-30 min**.
 
 ---
 
 ## Tips
 
-- Pre-deploy before the demo so the cluster is warm — `databricks bundle deploy -t dev` and even kick off one run. That way step 4 won't have a cold start delay.
+- Pre-deploy before the demo — `databricks bundle deploy -t dev` and even kick off one run. Serverless is fast but the first run can still take a minute.
 - Keep the workspace UI open in a browser tab, ready on the Workflows page.
 - If a run takes too long, just narrate what would happen and move on.
 - The live change in step 5 is the "wow" moment — practice the flow of edit, deploy, run so it feels smooth.
+- Serverless = no cluster spin-up wait. This makes the demo flow much smoother than classic compute.
