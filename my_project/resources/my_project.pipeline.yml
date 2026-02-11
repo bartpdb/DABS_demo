@@ -1,4 +1,4 @@
-# The main pipeline for my_project
+# The main Lakeflow Declarative Pipeline for my_project
 resources:
   pipelines:
     my_project_pipeline:

@@ -34,8 +34,8 @@
 ## Project structure (my_project)
 
 - `databricks.yml` – bundle config, targets (dev/prod)
-- `resources/` – job and pipeline definitions
-- `src/` – notebooks and Python code
+- `resources/` – job and Lakeflow Declarative Pipeline definitions
+- `src/` – notebooks and Python code (including a Lakeflow Declarative Pipeline)
 - `tests/` – unit tests
 
 ## Useful commands
