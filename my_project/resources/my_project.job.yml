@@ -34,13 +34,11 @@ resources:
             package_name: my_project
             entry_point: main
           environment_key: default
-          libraries:
-            # By default we just include the .whl file generated for the my_project package.
-            # See https://docs.databricks.com/dev-tools/bundles/library-dependencies.html
-            # for more information on how to add other libraries.
-            - whl: ../dist/*.whl
 
       # Serverless environment for Python wheel tasks
       environments:
         - environment_key: default
-          spec: null
+          spec:
+            client: "1"
+            dependencies:
+              - ../dist/*.whl
