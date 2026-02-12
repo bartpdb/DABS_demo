@@ -35,6 +35,11 @@ targets:
       host: https://e2-demo-field-eng.cloud.databricks.com
       # We explicitly deploy to /Workspace/Users/bart.prikker@databricks.com to make sure we only have a single copy.
       root_path: /Workspace/Users/bart.prikker@databricks.com/.bundle/${bundle.name}/${bundle.target}
+    # Run as a service principal in production — decouples job execution from
+    # individual user accounts. If the deployer leaves the company, the job keeps running.
+    # Replace with your actual service principal application ID.
+    run_as:
+      service_principal_name: <your-service-principal-app-id>
     variables:
       catalog: main
     permissions:
